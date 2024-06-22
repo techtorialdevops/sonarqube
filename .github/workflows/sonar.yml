@@ -21,7 +21,7 @@ jobs:
 
       - name: Configure kubectl
         run: |
-          gcloud config set account ${{ secrets.GKE_SA_KEY }}
+          gcloud container clusters get-credentials gke-project-426822-gke --region us-east5 --project gke-project-426822
           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} --region ${{ secrets.GKE_REGION }}
           kubectl config current-context
 
