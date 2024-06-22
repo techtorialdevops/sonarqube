@@ -13,12 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+        - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1.2.3  # Replace with the appropriate version
         with:
-          version: '340.0.0'
-          project_id: ${{ secrets.GKE_PROJECT }}
           service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
 
       - name: Configure kubectl
         run: |
