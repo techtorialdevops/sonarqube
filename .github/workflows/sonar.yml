@@ -27,4 +27,7 @@ jobs:
 
       - name: Deploy to GKE
         run: |
-          kubectl apply -f path/to/your/kubernetes/manifests/
+          helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+          helm template sonarqube sonarqube/sonarqube > ./sonarqube.yaml
+          ls
+          kubectl apply -f sonarqube.yaml
