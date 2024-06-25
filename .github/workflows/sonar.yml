@@ -9,25 +9,31 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    steps:    
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1.0.0 
-        with:
-          service_account_key: ${{ secrets.GKE_SA_KEY }}
-          project_id: ${{ secrets.GKE_PROJECT }}
+    # Setup gcloud CLI
+    - uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
 
-      - name: Configure kubectl
-        run: |
-          gcloud container clusters get-credentials gke-project-426822-gke --region us-east5 --project gke-project-426822
-          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} --region ${{ secrets.GKE_REGION }}
-          kubectl config current-context
+      # - name: Set up Google Cloud SDK
+      #   uses: google-github-actions/setup-gcloud@v1.0.0 
+      #   with:
+      #     service_account_key: ${{ secrets.GKE_SA_KEY }}
+      #     project_id: ${{ secrets.GKE_PROJECT }}
 
-      - name: Deploy to GKE
-        run: |
-          helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
-          helm template sonarqube sonarqube/sonarqube > ./sonarqube.yaml
-          ls
-          kubectl apply -f sonarqube.yaml
+      # - name: Configure kubectl
+      #   run: |
+      #     gcloud container clusters get-credentials gke-project-426822-gke --region us-east5 --project gke-project-426822
+      #     gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} --region ${{ secrets.GKE_REGION }}
+      #     kubectl config current-context
+
+      # - name: Deploy to GKE
+      #   run: |
+      #     helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+      #     helm template sonarqube sonarqube/sonarqube > ./sonarqube.yaml
+      #     ls
+      #     kubectl apply -f sonarqube.yaml
