@@ -1,45 +1,87 @@
-name: Deploy to GKE
+name: Deploy Helm Chart to GKE
 
 on:
   push:
     branches:
-      - main  # Change this to your main branch name
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    steps:    
-    - name: Checkout
-      uses: actions/checkout@v4
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    # Setup gcloud CLI
-    - uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
       with:
-        service_account_key: ${{ secrets.GKE_SA_KEY }}
-        project_id: ${{ secrets.GKE_PROJECT }}
+        version: '353.0.0'
 
-      
-    - run: |-
-          gcloud --quiet auth configure-docker
-  
-      # Get the GKE credentials so we can deploy to the cluster
-    - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+    - name: Authenticate to GCP
+      uses: google-github-actions/auth@v1
       with:
-        project_id: gke-project-426822
-        cluster_name: ${{ secrets.GKE_CLUSTER }}
-        location: ${{ secrets.GKE_REGION }}
-        credentials: ${{ secrets.GKE_SA_KEY }}
+        credentials_json: ${{ secrets.GKE_SA_KEY }}
 
     - name: Configure kubectl
       run: |
-          gcloud container clusters get-credentials gke-project-426822-gke --region us-east5 --project gke-project-426822
-          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} --region ${{ secrets.GKE_REGION }}
-          kubectl config current-context
+        gcloud container clusters get-credentials YOUR_CLUSTER_NAME --zone YOUR_CLUSTER_ZONE --project YOUR_GCP_PROJECT
+        echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
 
-    - name: Deploy to GKE
+    - name: Install Helm
       run: |
-          helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
-          helm template sonarqube sonarqube/sonarqube > ./sonarqube.yaml 
-          ls
-          kubectl apply -f sonarqube.yaml -n sonarqube
+        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+    - name: Deploy with Helm
+      run: |
+        helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+        helm template sonarqube sonarqube/sonarqube > ./sonarqube.yaml 
+        ls
+        kubectl apply -f sonarqube.yaml -n sonarqube
+
+
+# name: Deploy to GKE
+
+# on:
+#   push:
+#     branches:
+#       - main  # Change this to your main branch name
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:    
+#     - name: Checkout
+#       uses: actions/checkout@v4
+
+#     # Setup gcloud CLI
+#     - uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
+#       with:
+#         service_account_key: ${{ secrets.GKE_SA_KEY }}
+#         project_id: ${{ secrets.GKE_PROJECT }}
+
+      
+#     - run: |-
+#           gcloud --quiet auth configure-docker
+  
+#       # Get the GKE credentials so we can deploy to the cluster
+#     - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+#       with:
+#         project_id: gke-project-426822
+#         cluster_name: ${{ secrets.GKE_CLUSTER }}
+#         location: ${{ secrets.GKE_REGION }}
+#         credentials: ${{ secrets.GKE_SA_KEY }}
+
+#     - name: Configure kubectl
+#       run: |
+#           gcloud container clusters get-credentials gke-project-426822-gke --region us-east5 --project gke-project-426822
+#           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} --region ${{ secrets.GKE_REGION }}
+#           kubectl config current-context
+
+#     - name: Deploy to GKE
+#       run: |
+#           helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+#           helm template sonarqube sonarqube/sonarqube > ./sonarqube.yaml 
+#           ls
+#           kubectl apply -f sonarqube.yaml -n sonarqube
