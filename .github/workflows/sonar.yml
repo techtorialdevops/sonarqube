@@ -38,3 +38,4 @@ jobs:
         helm template sonarqube sonarqube/sonarqube > ./sonarqube.yaml  -n sonarqube
         ls
         kubectl apply  -f sonarqube.yaml -n sonarqube
+        
